@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../.tmp/tsbuildinfo/lighthouse-plugin-web-vitals",
+
+    // Limit to base JS defs.
+    "lib": ["esnext"],
+  },
+  "include": [
+    "**/*.js",
+  ],
+}

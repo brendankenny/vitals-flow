@@ -3,4 +3,6 @@
 yarn-error.log
 
 node_modules
+.tmp
+
 *.report.html

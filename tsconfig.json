@@ -1,0 +1,34 @@
+{
+  // Child projects to be compiled by `tsc -b .`.
+  "references": [
+    {"path": "./lighthouse-plugin-web-vitals/"},
+  ],
+
+  // Default compiler options for tsconfigs inheriting from here.
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+
+    // Limit to base JS defs.
+    "lib": ["esnext"],
+    // Don't include any types from node_modules by default.
+    "types": [],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    // "noUncheckedIndexedAccess": true,
+
+    // "listFiles": true,
+    // "noErrorTruncation": true,
+    // "extendedDiagnostics": true,
+  },
+  "files": [],
+  "include": [],
+  "exclude": [],
+}
