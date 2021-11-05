@@ -1,0 +1,11 @@
+{
+  "name": "lighthouse-plugin-web-vitals",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Lighthouse plugin with audits to measure Core Web Vitals",
+  "license": "Apache-2.0",
+  "main": "plugin.js",
+  "peerDependencies": {
+    "lighthouse": "^8.6.0"
+  }
+}

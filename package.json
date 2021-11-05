@@ -1,0 +1,23 @@
+{
+  "name": "vitals-flow",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Lighthouse plugin and runner for user-flow-based, lab CWV measurements",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "yarn lighthouse https://example.com --plugins lighthouse-plugin-web-vitals --view"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brendankenny/vitals-flow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brendankenny/vitals-flow/issues"
+  },
+  "homepage": "https://github.com/brendankenny/vitals-flow#readme",
+  "dependencies": {
+    "lighthouse": "^8.6.0-dev.20211104"
+  }
+}
