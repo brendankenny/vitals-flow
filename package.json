@@ -20,9 +20,12 @@
   },
   "homepage": "https://github.com/brendankenny/vitals-flow#readme",
   "dependencies": {
-    "lighthouse": "^8.6.0-dev.20211104"
+    "lighthouse": "^8.6.0-dev.20211105",
+    "open": "^8.4.0",
+    "puppeteer": "^11.0.0"
   },
   "devDependencies": {
+    "@types/node": "^16.11.6",
     "eslint": "^8.1.0",
     "eslint-config-google": "^0.14.0",
     "typescript": "4.5.1-rc"
