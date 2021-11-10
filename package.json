@@ -7,7 +7,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "yarn lighthouse https://example.com --plugins lighthouse-plugin-web-vitals --view",
+    "demo": "node runner/custom-config-test.js",
+    "plugin-demo": "yarn lighthouse https://example.com --plugins lighthouse-plugin-web-vitals --view",
     "lint": "eslint .",
     "type-check": "yarn tsc -b ."
   },
@@ -20,7 +21,8 @@
   },
   "homepage": "https://github.com/brendankenny/vitals-flow#readme",
   "dependencies": {
-    "lighthouse": "^8.6.0-dev.20211105",
+    "chrome-launcher": "^0.15.0",
+    "lighthouse": "^8.6.0-dev.20211109",
     "open": "^8.4.0",
     "puppeteer": "^11.0.0"
   },
