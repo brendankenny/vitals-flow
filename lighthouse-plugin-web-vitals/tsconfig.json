@@ -5,6 +5,8 @@
 
     // Limit to base JS defs.
     "lib": ["esnext"],
+    // Selectively include types from node_modules/.
+    "types": ["node"],
   },
   "include": [
     "**/*.js",

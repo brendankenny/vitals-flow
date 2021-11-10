@@ -16,13 +16,18 @@
 
 module.exports = {
   audits: [
+    {path: 'lighthouse-plugin-web-vitals/first-input-delay.js'},
+    {path: 'lighthouse-plugin-web-vitals/responsiveness.js'},
   ],
 
   category: {
     title: 'Lab Web Vitals',
     description: 'Web Vitals are a set of metrics that measure important aspects of real-world user experience on the web. [Learn more](https://web.dev/vitals/).',
     auditRefs: [
+      {id: 'largest-contentful-paint', weight: 1},
       {id: 'cumulative-layout-shift', weight: 1},
+      {id: 'first-input-delay', weight: 1},
+      {id: 'responsiveness', weight: 0},
     ],
   },
 };
