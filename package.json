@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "demo": "node runner/custom-config-test.js",
+    "demo": "node runner/khan-runner-test.js",
     "plugin-demo": "yarn lighthouse https://example.com --plugins lighthouse-plugin-web-vitals --view",
     "lint": "eslint .",
     "type-check": "yarn tsc -b ."

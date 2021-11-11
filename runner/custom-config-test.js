@@ -20,7 +20,7 @@ import puppeteer from 'puppeteer';
 import {getChromePath} from 'chrome-launcher';
 // @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
 import {startFlow} from 'lighthouse/lighthouse-core/fraggle-rock/api.js';
-import {getUserInteractionConfig} from './user-interaction-config.js';
+import {getUserInteractionConfig} from './config/user-interaction-config.js';
 
 /** @param {number} time in ms */
 function sleep(time) {

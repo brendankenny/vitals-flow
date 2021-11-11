@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {NavigationRunner} from './index.js';
+import {createRunner} from './interaction-runner.js';
 
 /** @param {number} time in ms */
 function sleep(time) {
@@ -22,7 +22,7 @@ function sleep(time) {
 }
 
 async function captureReport() {
-  const runner = new NavigationRunner();
+  const runner = await createRunner({useHackReport: true});
   await runner.startNavigation({url: 'https://www.khanacademy.org/'});
 
   try {
@@ -42,9 +42,10 @@ async function captureReport() {
   await sleep(500);
 
   // Type in search box.
-  await runner.page.type(searchBoxSelector, 'machine learning', {delay: 10});
+  await runner.page.type(searchBoxSelector, 'machine learning', {delay: 20});
 
   await runner.endNavigation();
+  await runner.saveReport({filepath: 'khan-sample.report.html', view: true});
 }
 
 captureReport();
