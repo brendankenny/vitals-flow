@@ -14,68 +14,32 @@
  * limitations under the License.
  */
 
-// @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
-import Audit from 'lighthouse/lighthouse-core/audits/audit.js';
-// @ts-expect-error
-import FRGatherer from 'lighthouse/lighthouse-core/fraggle-rock/gather/base-gatherer.js';
-
-const USER_INTERACTION_ID = 'VitalsFlowUserInteraction';
+import {createUserInteractionGatherer, PlaceholderAudit} from './custom-modules.js';
 
 function getUserInteractionConfig() {
-  // Promise/resolver for when gatherer yields to user interaction code.
-  /** @type {(value: void) => void} */
-  let resolveWhenUserCanInteract = () => {};
-  /** @type {Promise<void>} */
-  const canStartUserInteraction = new Promise((resolve) => {
-    resolveWhenUserCanInteract = resolve;
-  });
-
-  // Promise/resolver for when user interaction is complete and gatherer can resume.
-  /** @type {(value: void) => void} */
-  let resolveWhenUserInteractionFinished = () => {};
-  /** @type {Promise<void>} */
-  const userInteractionFinished = new Promise((resolve) => {
-    resolveWhenUserInteractionFinished = resolve;
-  });
-
-  /** @type {any} */
-  class VitalsFlowUserInteraction extends FRGatherer {
-    static symbol = Symbol('USER_INTERACTION_ID');
-    meta = {
-      symbol: VitalsFlowUserInteraction.symbol,
-      supportedModes: ['navigation', 'timespan'],
-    };
-
-    // Use stopSensitiveInstrumentation so it's still during trace but after load is complete.
-    async stopSensitiveInstrumentation(/* {driver, gatherMode, settings} */) {
-      // Yield to user code awaiting `canStartUserInteraction`.
-      resolveWhenUserCanInteract();
-
-      // Wait for user code to yield.
-      await userInteractionFinished;
-    }
-
-    // Artifact doesn't really matter.
-    getArtifact() {
-      return {};
-    }
-  }
+  const {
+    userInteractionGatherer,
+    canStartUserInteraction,
+    resolveWhenUserInteractionFinished,
+  } = createUserInteractionGatherer();
 
   const config = {
     extends: 'lighthouse:default',
-    artifacts: [
+
+    artifacts: [{
       // Add custom gatherer that will pause for user interaction.
-      {id: USER_INTERACTION_ID, gatherer: {
-        instance: /** @type {any} */ (new VitalsFlowUserInteraction()),
-      }},
-    ],
+      id: userInteractionGatherer.name,
+      gatherer: {
+        instance: userInteractionGatherer,
+      },
+    }],
 
     // Add gatherer to default navigation.
     navigations: [{
       id: 'default',
       artifacts: [
-        // TODO(bckenny): this might not work since it has to go first?
-        USER_INTERACTION_ID,
+        // TODO(bckenny): this might not work since it has to go first? Or can we switch to startSensitiveInstrumentation?
+        userInteractionGatherer.name,
 
         // TODO(bckenny): HACK to workaround Lighthouse bug. These should be merged, not replaced.
         // At https://github.com/GoogleChrome/lighthouse/blob/dcf2ef3f0bbf83e96b63a06280cf87140d2decf6/lighthouse-core/fraggle-rock/config/config.js#L82
@@ -125,29 +89,14 @@ function getUserInteractionConfig() {
     }],
 
     audits: [
-      // Add a dummy audit to ensure UserInteraction gatherer runs.
-      class PlaceholderAudit extends Audit {
-        static get meta() {
-          return {
-            id: 'vitals-flow-placeholder-audit',
-            title: 'A placeholder audit',
-            failureTitle: 'A placeholder audit',
-            description: 'An audit to ensure UserInteraction runs',
-            supportedModes: ['navigation', 'timespan'],
-            requiredArtifacts: [USER_INTERACTION_ID],
-          };
-        }
-        static audit() {
-          return {score: 1};
-        }
-      },
+      PlaceholderAudit,
     ],
 
     // Add audit to perf category to ensure audit runs.
     categories: {
       performance: {
         auditRefs: [
-          {id: 'vitals-flow-placeholder-audit', weight: 0, group: 'hidden'},
+          {id: PlaceholderAudit.meta.id, weight: 0, group: 'hidden'},
         ],
       },
     },

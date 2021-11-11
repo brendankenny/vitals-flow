@@ -15,19 +15,17 @@
  */
 
 // @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
-import Audit from 'lighthouse/lighthouse-core/audits/audit.js';
-// @ts-expect-error
-import FRGatherer from 'lighthouse/lighthouse-core/fraggle-rock/gather/base-gatherer.js';
-
 import legacyDefaultConfig from 'lighthouse/lighthouse-core/config/default-config.js';
 
-/** @type {LH.Config.AuditJson[]} */
+import {createUserInteractionGatherer, PlaceholderAudit} from './custom-modules.js';
+
+// TODO(bckenny): import fraggle rock config and augment directly?
+
 const frAudits = [
   'byte-efficiency/uses-responsive-images-snapshot',
 ];
 
 // Ensure all artifact IDs match the typedefs.
-/** @type {Record<keyof LH.FRArtifacts, string>} */
 const artifacts = {
   DevtoolsLog: '',
   Trace: '',
@@ -73,47 +71,12 @@ for (const key of Object.keys(artifacts)) {
   artifacts[/** @type {keyof typeof artifacts} */ (key)] = key;
 }
 
-const USER_INTERACTION_ID = 'VitalsFlowUserInteraction';
-
 function getUserInteractionConfig() {
-  // Promise/resolver for when gatherer yields to user interaction code.
-  /** @type {(value: void) => void} */
-  let resolveWhenUserCanInteract = () => {};
-  /** @type {Promise<void>} */
-  const canStartUserInteraction = new Promise((resolve) => {
-    resolveWhenUserCanInteract = resolve;
-  });
-
-  // Promise/resolver for when user interaction is complete and gatherer can resume.
-  /** @type {(value: void) => void} */
-  let resolveWhenUserInteractionFinished = () => {};
-  /** @type {Promise<void>} */
-  const userInteractionFinished = new Promise((resolve) => {
-    resolveWhenUserInteractionFinished = resolve;
-  });
-
-  /** @type {any} */
-  class VitalsFlowUserInteraction extends FRGatherer {
-    static symbol = Symbol('USER_INTERACTION_ID');
-    meta = {
-      symbol: VitalsFlowUserInteraction.symbol,
-      supportedModes: ['navigation', 'timespan'],
-    };
-
-    // Use stopSensitiveInstrumentation so it's still during trace but after load is complete.
-    async stopSensitiveInstrumentation(/* {driver, gatherMode, settings} */) {
-      // Yield to user code awaiting `canStartUserInteraction`.
-      resolveWhenUserCanInteract();
-
-      // Wait for user code to yield.
-      await userInteractionFinished;
-    }
-
-    // Artifact doesn't really matter.
-    getArtifact() {
-      return {};
-    }
-  }
+  const {
+    userInteractionGatherer,
+    canStartUserInteraction,
+    resolveWhenUserInteractionFinished,
+  } = createUserInteractionGatherer();
 
   const config = {
     // extends: 'lighthouse:default',
@@ -163,10 +126,13 @@ function getUserInteractionConfig() {
       {id: artifacts.devtoolsLogs, gatherer: 'devtools-log-compat'},
       {id: artifacts.traces, gatherer: 'trace-compat'},
 
-      // Add custom gatherer that will pause for user interaction.
-      {id: USER_INTERACTION_ID, gatherer: {
-        instance: /** @type {any} */ (new VitalsFlowUserInteraction()),
-      }},
+      {
+        // Add custom gatherer that will pause for user interaction.
+        id: userInteractionGatherer.name,
+        gatherer: {
+          instance: userInteractionGatherer,
+        },
+      },
     ],
 
     navigations: [
@@ -178,7 +144,7 @@ function getUserInteractionConfig() {
         cpuQuietThresholdMs: 1000,
         artifacts: [
           // TODO(bckenny): this might not work since it has to go first?
-          USER_INTERACTION_ID,
+          userInteractionGatherer.name,
 
           // Artifacts which can be depended on come first.
           artifacts.DevtoolsLog,
@@ -229,27 +195,16 @@ function getUserInteractionConfig() {
     ],
     settings: legacyDefaultConfig.settings,
     audits: [
-      ...(legacyDefaultConfig.audits || []).map(audit => {
+      ...(/** @type {unknown[]} */ (legacyDefaultConfig.audits) || []).map((audit) => {
         if (typeof audit === 'string') return {path: audit};
         return audit;
       }),
       ...frAudits,
-      // Add a dummy audit to ensure UserInteraction gatherer runs.
-      class PlaceholderAudit extends Audit {
-        static get meta() {
-          return {
-            id: 'vitals-flow-placeholder-audit',
-            title: 'A placeholder audit',
-            failureTitle: 'A placeholder audit',
-            description: 'An audit to ensure UserInteraction runs',
-            supportedModes: ['navigation', 'timespan'],
-            requiredArtifacts: [USER_INTERACTION_ID],
-          };
-        }
-        static audit() {
-          return {score: 1};
-        }
-      },
+
+      // Placeholder audit to keep interaction gatherer in config.
+      PlaceholderAudit,
+
+      // Web vitals custom audits.
       {path: 'lighthouse-plugin-web-vitals/first-input-delay.js'},
       {path: 'lighthouse-plugin-web-vitals/responsiveness.js'},
     ],
@@ -267,8 +222,8 @@ function getUserInteractionConfig() {
 
           {id: 'responsiveness', weight: 0},
 
-          // Placeholder so user interaction can take place.
-          {id: 'vitals-flow-placeholder-audit', weight: 0, group: 'hidden'},
+          // Add placeholder audit to perf category to ensure audit runs.
+          {id: PlaceholderAudit.meta.id, weight: 0, group: 'hidden'},
 
           // FR merged hidden audit.
           // {id: 'uses-responsive-images-snapshot', weight: 0},

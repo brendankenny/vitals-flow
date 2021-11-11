@@ -123,7 +123,8 @@ class InteractionRunner {
     } = getUserInteractionConfig();
     this.#resolveWhenUserInteractionFinished = resolveWhenUserInteractionFinished;
 
-    // Don't await navigation yet.
+    // Caller will await user interaction start, not navigation directly.
+    // TODO(bckenny): switch to devtools throttling.
     this.#navigationPromise = navigation({
       url,
       page: this.page,

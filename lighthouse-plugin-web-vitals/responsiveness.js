@@ -17,7 +17,11 @@
 // @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
 const Audit = require('lighthouse/lighthouse-core/audits/audit.js');
 
-/** @typedef {{duration: number, interactionType: 'keyboard'|'tapOrClick'|'drag'}} ResponsivenessDuration */
+/** @typedef {'keyboard'|'tapOrClick'|'drag'} InteractionType */
+/** @typedef {{duration: number, interactionType: InteractionType}} ResponsivenessDuration */
+// TODO(bckenny): import LH types
+/** @typedef {{name: string, args: {data: {interactionType: InteractionType, maxDuration: number, totalDuration: number}}}} ResponsivenessEvent */
+/** @typedef {{traceEvents: Array<ResponsivenessEvent>}} Trace */
 
 const interactionBudgets = {
   keyboard: 50,
@@ -83,18 +87,21 @@ class Responsiveness extends Audit {
     });
   }
 
+  /**
+   * @param {{traces: Record<string, Trace>}} artifacts
+   */
   static async audit(artifacts) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     // const processedTrace = await ProcessedTrace.request(trace, context);
-    const responsivenessEvents = trace.traceEvents.filter(e => {
+    const responsivenessEvents = trace.traceEvents.filter((e) => {
       return e.name === 'Responsiveness.Renderer.UserInteraction';
     });
 
-    const maxDurations = responsivenessEvents.map(e => {
+    const maxDurations = responsivenessEvents.map((e) => {
       const {maxDuration: duration, interactionType} = e.args.data;
       return {duration, interactionType};
     });
-    const totalDurations = responsivenessEvents.map(e => {
+    const totalDurations = responsivenessEvents.map((e) => {
       const {totalDuration: duration, interactionType} = e.args.data;
       return {duration, interactionType};
     });

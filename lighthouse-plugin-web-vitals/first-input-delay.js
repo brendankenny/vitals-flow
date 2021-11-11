@@ -38,6 +38,11 @@ class FirstInputDelay extends Audit {
     };
   }
 
+  /**
+   * TODO(bckenny): import LH types
+   * @param {{traces: Record<string, {traceEvents: Array<{name: string, args: {data: {firstInputDelayInMilliseconds: number}}}>}>}} artifacts
+   * @param {{options: {p10: number, median: number}, settings: {locale: string}}} context
+   */
   static async audit(artifacts, context) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     // const processedTrace = await ProcessedTrace.request(trace, context);
