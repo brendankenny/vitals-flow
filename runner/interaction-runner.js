@@ -106,7 +106,6 @@ class InteractionRunner {
     this.#resolveWhenUserInteractionFinished = resolveWhenUserInteractionFinished;
 
     // Caller will await user interaction start, not navigation directly.
-    // TODO(bckenny): switch to devtools throttling.
     this.#navigationPromise = navigation({
       url,
       page: this.page,
@@ -114,6 +113,8 @@ class InteractionRunner {
       configContext: {
         settingsOverrides: {
           output: 'html',
+          // If throttling, have to use devtools since no lantern impl of metrics.
+          throttlingMethod: 'devtools',
         },
       },
     });
