@@ -34,7 +34,7 @@ class Responsiveness extends Audit {
     return {
       id: 'responsiveness',
       title: 'Responsiveness',
-      description: 'Responsiveness',
+      description: 'Responsiveness is an attempt to summarize how quickly the browser is able to respond to user interaction over the lifetime of the page. [Learn more](https://web.dev/responsiveness/).',
       scoreDisplayMode: Audit.SCORING_MODES.NUMERIC,
       requiredArtifacts: ['traces'],
     };
@@ -54,7 +54,7 @@ class Responsiveness extends Audit {
   /**
    * Note, durations are in ms
    * see https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/timing/responsiveness_metrics.cc;l=93-105;drc=65c9257f1777731d6d0669598f6fe6fe65fa61d3
-   * TODO(bckenny): would we prefer µs to match internal aggregation?
+   * TODO(bckenny): would we prefer µs in trace event to match internal aggregation?
    * @param {Array<ResponsivenessDuration>} events
    * @return {Array<{aggregationType: string, aggregationValue: string}>}
    */
@@ -77,7 +77,7 @@ class Responsiveness extends Audit {
       // high_percentile_latency_over_budget;
     ];
 
-    // TODO(bckenny): hack to get better rendering in the report.
+    // TODO(bckenny): hack to get better rendering in the report (strings are left aligned).
     return aggregations.map((agg) => {
       const {aggregationType, aggregationValue} = agg;
       return {
@@ -93,6 +93,7 @@ class Responsiveness extends Audit {
   static async audit(artifacts) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     // const processedTrace = await ProcessedTrace.request(trace, context);
+    // TODO(bckenny): need to add up across frame tree but not go into other main frame roots.
     const responsivenessEvents = trace.traceEvents.filter((e) => {
       return e.name === 'Responsiveness.Renderer.UserInteraction';
     });

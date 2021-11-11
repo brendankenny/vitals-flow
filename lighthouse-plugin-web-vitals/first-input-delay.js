@@ -22,7 +22,7 @@ class FirstInputDelay extends Audit {
     return {
       id: 'first-input-delay',
       title: 'First Input Delay',
-      description: 'First Input Delay',
+      description: 'First Input Delay measures the time from first interaction to when the browser can begin processing that interaction. [Learn more](https://web.dev/fid/).',
       scoreDisplayMode: Audit.SCORING_MODES.NUMERIC,
       requiredArtifacts: ['traces'],
     };
@@ -45,6 +45,7 @@ class FirstInputDelay extends Audit {
    */
   static async audit(artifacts, context) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
+    // TODO(bckenny): event is summed for all frames, but make sure correct process.
     // const processedTrace = await ProcessedTrace.request(trace, context);
     const fidEvent = trace.traceEvents.find(e => e.name === 'FirstInputDelay::AllFrames::UMA');
     const fidValue = fidEvent ? fidEvent.args.data.firstInputDelayInMilliseconds : 0;
