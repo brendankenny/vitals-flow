@@ -15,61 +15,9 @@
  */
 
 // @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
-import legacyDefaultConfig from 'lighthouse/lighthouse-core/config/default-config.js';
+import frDefaultConfig from 'lighthouse/lighthouse-core/fraggle-rock/config/default-config.js';
 
 import {createUserInteractionGatherer, PlaceholderAudit} from './custom-modules.js';
-
-// TODO(bckenny): import fraggle rock config and augment directly?
-
-const frAudits = [
-  'byte-efficiency/uses-responsive-images-snapshot',
-];
-
-// Ensure all artifact IDs match the typedefs.
-const artifacts = {
-  DevtoolsLog: '',
-  Trace: '',
-  Accessibility: '',
-  AnchorElements: '',
-  CacheContents: '',
-  ConsoleMessages: '',
-  CSSUsage: '',
-  Doctype: '',
-  DOMStats: '',
-  EmbeddedContent: '',
-  FontSize: '',
-  FormElements: '',
-  FullPageScreenshot: '',
-  GlobalListeners: '',
-  IFrameElements: '',
-  ImageElements: '',
-  InstallabilityErrors: '',
-  InspectorIssues: '',
-  JsUsage: '',
-  LinkElements: '',
-  MainDocumentContent: '',
-  MetaElements: '',
-  NetworkUserAgent: '',
-  OptimizedImages: '',
-  PasswordInputsWithPreventedPaste: '',
-  ResponseCompression: '',
-  RobotsTxt: '',
-  ServiceWorker: '',
-  ScriptElements: '',
-  SourceMaps: '',
-  Stacks: '',
-  TagsBlockingFirstPaint: '',
-  TapTargets: '',
-  TraceElements: '',
-  ViewportDimensions: '',
-  WebAppManifest: '',
-  devtoolsLogs: '',
-  traces: '',
-};
-
-for (const key of Object.keys(artifacts)) {
-  artifacts[/** @type {keyof typeof artifacts} */ (key)] = key;
-}
 
 function getUserInteractionConfig() {
   const {
@@ -78,54 +26,19 @@ function getUserInteractionConfig() {
     resolveWhenUserInteractionFinished,
   } = createUserInteractionGatherer();
 
+  // Put userInteractionGatherer at front of navigation.
+  const navigations = JSON.parse(JSON.stringify(frDefaultConfig.navigations));
+  navigations[0].artifacts = [
+    // TODO(bckenny): this has to go first to run before trace is stopped.
+    // Is there another way to set order? Dependencies?
+    userInteractionGatherer.name,
+
+    ...navigations[0].artifacts,
+  ];
+
   const config = {
-    // extends: 'lighthouse:default',
     artifacts: [
-      // Artifacts which can be depended on come first.
-      {id: artifacts.DevtoolsLog, gatherer: 'devtools-log'},
-      {id: artifacts.Trace, gatherer: 'trace'},
-
-      /* eslint-disable max-len */
-      {id: artifacts.Accessibility, gatherer: 'accessibility'},
-      {id: artifacts.AnchorElements, gatherer: 'anchor-elements'},
-      {id: artifacts.CacheContents, gatherer: 'cache-contents'},
-      {id: artifacts.ConsoleMessages, gatherer: 'console-messages'},
-      {id: artifacts.CSSUsage, gatherer: 'css-usage'},
-      {id: artifacts.Doctype, gatherer: 'dobetterweb/doctype'},
-      {id: artifacts.DOMStats, gatherer: 'dobetterweb/domstats'},
-      {id: artifacts.EmbeddedContent, gatherer: 'seo/embedded-content'},
-      {id: artifacts.FontSize, gatherer: 'seo/font-size'},
-      {id: artifacts.FormElements, gatherer: 'form-elements'},
-      {id: artifacts.FullPageScreenshot, gatherer: 'full-page-screenshot'},
-      {id: artifacts.GlobalListeners, gatherer: 'global-listeners'},
-      {id: artifacts.IFrameElements, gatherer: 'iframe-elements'},
-      {id: artifacts.ImageElements, gatherer: 'image-elements'},
-      {id: artifacts.InstallabilityErrors, gatherer: 'installability-errors'},
-      {id: artifacts.InspectorIssues, gatherer: 'inspector-issues'},
-      {id: artifacts.JsUsage, gatherer: 'js-usage'},
-      {id: artifacts.LinkElements, gatherer: 'link-elements'},
-      {id: artifacts.MainDocumentContent, gatherer: 'main-document-content'},
-      {id: artifacts.MetaElements, gatherer: 'meta-elements'},
-      {id: artifacts.NetworkUserAgent, gatherer: 'network-user-agent'},
-      {id: artifacts.OptimizedImages, gatherer: 'dobetterweb/optimized-images'},
-      {id: artifacts.PasswordInputsWithPreventedPaste, gatherer: 'dobetterweb/password-inputs-with-prevented-paste'},
-      {id: artifacts.ResponseCompression, gatherer: 'dobetterweb/response-compression'},
-      {id: artifacts.RobotsTxt, gatherer: 'seo/robots-txt'},
-      {id: artifacts.ServiceWorker, gatherer: 'service-worker'},
-      {id: artifacts.ScriptElements, gatherer: 'script-elements'},
-      {id: artifacts.SourceMaps, gatherer: 'source-maps'},
-      {id: artifacts.Stacks, gatherer: 'stacks'},
-      {id: artifacts.TagsBlockingFirstPaint, gatherer: 'dobetterweb/tags-blocking-first-paint'},
-      {id: artifacts.TapTargets, gatherer: 'seo/tap-targets'},
-      {id: artifacts.TraceElements, gatherer: 'trace-elements'},
-      {id: artifacts.ViewportDimensions, gatherer: 'viewport-dimensions'},
-      {id: artifacts.WebAppManifest, gatherer: 'web-app-manifest'},
-      /* eslint-enable max-len */
-
-      // Artifact copies are renamed for compatibility with legacy artifacts.
-      {id: artifacts.devtoolsLogs, gatherer: 'devtools-log-compat'},
-      {id: artifacts.traces, gatherer: 'trace-compat'},
-
+      ...frDefaultConfig.artifacts,
       {
         // Add custom gatherer that will pause for user interaction.
         id: userInteractionGatherer.name,
@@ -135,71 +48,10 @@ function getUserInteractionConfig() {
       },
     ],
 
-    navigations: [
-      {
-        id: 'default',
-        pauseAfterFcpMs: 1000,
-        pauseAfterLoadMs: 1000,
-        networkQuietThresholdMs: 1000,
-        cpuQuietThresholdMs: 1000,
-        artifacts: [
-          // TODO(bckenny): this might not work since it has to go first?
-          userInteractionGatherer.name,
-
-          // Artifacts which can be depended on come first.
-          artifacts.DevtoolsLog,
-          artifacts.Trace,
-
-          artifacts.Accessibility,
-          artifacts.AnchorElements,
-          artifacts.CacheContents,
-          artifacts.ConsoleMessages,
-          artifacts.CSSUsage,
-          artifacts.Doctype,
-          artifacts.DOMStats,
-          artifacts.EmbeddedContent,
-          artifacts.FontSize,
-          artifacts.FormElements,
-          artifacts.GlobalListeners,
-          artifacts.IFrameElements,
-          artifacts.ImageElements,
-          artifacts.InstallabilityErrors,
-          artifacts.InspectorIssues,
-          artifacts.JsUsage,
-          artifacts.LinkElements,
-          artifacts.MainDocumentContent,
-          artifacts.MetaElements,
-          artifacts.NetworkUserAgent,
-          artifacts.OptimizedImages,
-          artifacts.PasswordInputsWithPreventedPaste,
-          artifacts.ResponseCompression,
-          artifacts.RobotsTxt,
-          artifacts.ServiceWorker,
-          artifacts.ScriptElements,
-          artifacts.SourceMaps,
-          artifacts.Stacks,
-          artifacts.TagsBlockingFirstPaint,
-          artifacts.TapTargets,
-          artifacts.TraceElements,
-          artifacts.ViewportDimensions,
-          artifacts.WebAppManifest,
-
-          // Compat artifacts come last.
-          artifacts.devtoolsLogs,
-          artifacts.traces,
-
-          // FullPageScreenshot comes at the very end so all other node analysis is captured.
-          artifacts.FullPageScreenshot,
-        ],
-      },
-    ],
-    settings: legacyDefaultConfig.settings,
+    navigations,
+    settings: frDefaultConfig.settings,
     audits: [
-      ...(/** @type {unknown[]} */ (legacyDefaultConfig.audits) || []).map((audit) => {
-        if (typeof audit === 'string') return {path: audit};
-        return audit;
-      }),
-      ...frAudits,
+      ...frDefaultConfig.audits,
 
       // Placeholder audit to keep interaction gatherer in config.
       PlaceholderAudit,
@@ -208,8 +60,7 @@ function getUserInteractionConfig() {
       {path: 'lighthouse-plugin-web-vitals/first-input-delay.js'},
       {path: 'lighthouse-plugin-web-vitals/responsiveness.js'},
     ],
-
-    // Add audit to perf category to ensure audit runs.
+    // Replace perf category with web-vitals and related audits.
     categories: {
       performance: {
         title: 'Lab Web Vitals',
@@ -241,7 +92,7 @@ function getUserInteractionConfig() {
         ],
       },
     },
-    groups: legacyDefaultConfig.groups,
+    groups: frDefaultConfig.groups,
   };
 
   return {config, canStartUserInteraction, resolveWhenUserInteractionFinished};

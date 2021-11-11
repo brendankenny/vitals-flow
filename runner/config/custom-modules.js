@@ -54,7 +54,6 @@ function createUserInteractionGatherer() {
       supportedModes: ['navigation', 'timespan'],
     };
 
-    // TODO(bckenny): user startSensitiveInstrumentation?
     // Use stopSensitiveInstrumentation so it's still during trace but after load is complete.
     async stopSensitiveInstrumentation(/* {driver, gatherMode, settings} */) {
       // Yield to user code awaiting `canStartUserInteraction`.

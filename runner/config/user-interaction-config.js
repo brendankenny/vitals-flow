@@ -16,6 +16,9 @@
 
 import {createUserInteractionGatherer, PlaceholderAudit} from './custom-modules.js';
 
+// @ts-expect-error - TODO(bckenny): we need some types for Lighthouse.
+import frDefaultConfig from 'lighthouse/lighthouse-core/fraggle-rock/config/default-config.js';
+
 function getUserInteractionConfig() {
   const {
     userInteractionGatherer,
@@ -38,53 +41,13 @@ function getUserInteractionConfig() {
     navigations: [{
       id: 'default',
       artifacts: [
-        // TODO(bckenny): this might not work since it has to go first? Or can we switch to startSensitiveInstrumentation?
+        // TODO(bckenny): this has to go first to run before trace is stopped.
+        // Is there another way to set order? Dependencies?
         userInteractionGatherer.name,
 
         // TODO(bckenny): HACK to workaround Lighthouse bug. These should be merged, not replaced.
         // At https://github.com/GoogleChrome/lighthouse/blob/dcf2ef3f0bbf83e96b63a06280cf87140d2decf6/lighthouse-core/fraggle-rock/config/config.js#L82
-        'DevtoolsLog',
-        'Trace',
-        'Accessibility',
-        'AnchorElements',
-        'CacheContents',
-        'ConsoleMessages',
-        'CSSUsage',
-        'Doctype',
-        'DOMStats',
-        'EmbeddedContent',
-        'FontSize',
-        'FormElements',
-        'GlobalListeners',
-        'IFrameElements',
-        'ImageElements',
-        'InstallabilityErrors',
-        'InspectorIssues',
-        'JsUsage',
-        'LinkElements',
-        'MainDocumentContent',
-        'MetaElements',
-        'NetworkUserAgent',
-        'OptimizedImages',
-        'PasswordInputsWithPreventedPaste',
-        'ResponseCompression',
-        'RobotsTxt',
-        'ServiceWorker',
-        'ScriptElements',
-        'SourceMaps',
-        'Stacks',
-        'TagsBlockingFirstPaint',
-        'TapTargets',
-        'TraceElements',
-        'ViewportDimensions',
-        'WebAppManifest',
-
-        // Compat artifacts come last.
-        'devtoolsLogs',
-        'traces',
-
-        // FullPageScreenshot comes at the very end so all other node analysis is captured.
-        'FullPageScreenshot',
+        ...frDefaultConfig.navigations[0].artifacts,
       ],
     }],
 
