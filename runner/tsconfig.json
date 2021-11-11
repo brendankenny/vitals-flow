@@ -8,6 +8,9 @@
     // Selectively include types from node_modules/.
     "types": ["node"],
   },
+  "references": [
+    {"path": "../lighthouse-plugin-web-vitals/"},
+  ],
   "include": [
     "**/*.js",
   ],

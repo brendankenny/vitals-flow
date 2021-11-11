@@ -18,6 +18,7 @@
 import frDefaultConfig from 'lighthouse/lighthouse-core/fraggle-rock/config/default-config.js';
 
 import {createUserInteractionGatherer, PlaceholderAudit} from './custom-modules.js';
+import WebVitalsPluginConfig from '../../lighthouse-plugin-web-vitals/plugin.js';
 
 function getUserInteractionConfig() {
   const {
@@ -37,6 +38,13 @@ function getUserInteractionConfig() {
   ];
 
   const config = {
+    settings: {
+      ...frDefaultConfig.settings,
+      onlyCategories: [
+        'performance',
+      ],
+    },
+
     artifacts: [
       ...frDefaultConfig.artifacts,
       {
@@ -49,7 +57,6 @@ function getUserInteractionConfig() {
     ],
 
     navigations,
-    settings: frDefaultConfig.settings,
     audits: [
       ...frDefaultConfig.audits,
 
@@ -57,8 +64,7 @@ function getUserInteractionConfig() {
       PlaceholderAudit,
 
       // Web vitals custom audits.
-      {path: 'lighthouse-plugin-web-vitals/first-input-delay.js'},
-      {path: 'lighthouse-plugin-web-vitals/responsiveness.js'},
+      ...WebVitalsPluginConfig.audits,
     ],
     // Replace perf category with web-vitals and related audits.
     categories: {
@@ -67,11 +73,7 @@ function getUserInteractionConfig() {
         description: 'Web Vitals are a set of metrics that measure important aspects of real-world user experience on the web. [Learn more](https://web.dev/vitals/).',
         supportedModes: ['navigation', 'timespan'],
         auditRefs: [
-          {id: 'largest-contentful-paint', weight: 1, group: 'metrics'},
-          {id: 'cumulative-layout-shift', weight: 1, group: 'metrics'},
-          {id: 'first-input-delay', weight: 1, group: 'metrics'},
-
-          {id: 'responsiveness', weight: 0},
+          ...WebVitalsPluginConfig.category.auditRefs,
 
           // Add placeholder audit to perf category to ensure audit runs.
           {id: PlaceholderAudit.meta.id, weight: 0, group: 'hidden'},

@@ -28,6 +28,13 @@ function getUserInteractionConfig() {
 
   const config = {
     extends: 'lighthouse:default',
+    plugins: ['lighthouse-plugin-web-vitals'],
+    settings: {
+      onlyCategories: [
+        'performance',
+        'lighthouse-plugin-web-vitals',
+      ],
+    },
 
     artifacts: [{
       // Add custom gatherer that will pause for user interaction.

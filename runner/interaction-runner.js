@@ -61,23 +61,6 @@ async function createRunner({page, useHackReport = false} = {}) {
   return new InteractionRunner({browser, page, session, useHackReport});
 }
 
-/**
- * @param {{useHackReport: boolean}} options
- */
-function getConfigParameters({useHackReport}) {
-  if (useHackReport) {
-    return {
-      plugins: [], // No need for a plugin.
-      getUserInteractionConfig: hackPerfReplacementConfig.getUserInteractionConfig,
-    };
-  }
-
-  return {
-    plugins: ['lighthouse-plugin-web-vitals'],
-    getUserInteractionConfig: userInteractionConfig.getUserInteractionConfig,
-  };
-}
-
 class InteractionRunner {
   /** @type {Browser|undefined} */
   #browser;
@@ -113,9 +96,8 @@ class InteractionRunner {
 
     // Get our bespoke config and user interaction triggers.
     const {
-      plugins,
       getUserInteractionConfig,
-    } = getConfigParameters({useHackReport: this.#useHackReport});
+    } = this.#useHackReport ? hackPerfReplacementConfig : userInteractionConfig;
     const {
       config,
       canStartUserInteraction,
@@ -132,11 +114,6 @@ class InteractionRunner {
       configContext: {
         settingsOverrides: {
           output: 'html',
-          plugins,
-          onlyCategories: [
-            ...plugins,
-            'performance',
-          ],
         },
       },
     });
@@ -173,7 +150,7 @@ class InteractionRunner {
       throw new Error('Navigation not taken yet');
     }
 
-    // TODO(bckenny): save artifacts flag.
+    // TODO(bckenny): save json, artifacts flag.
     await fs.writeFile(filepath, this.#lhrResult.report);
     if (view) {
       open(filepath, {wait: false});
