@@ -61,10 +61,10 @@ class Responsiveness extends Audit {
   static aggregateResponsivenessEvents(events) {
     const durationsOverBudget = Responsiveness.durationsOverBudget(events);
 
-    const worstLatency = Math.max(...events.map(e => e.duration));
-    const worstLatencyOverBudget = Math.max(...durationsOverBudget);
-    const sumOfLatencyOverBudget = durationsOverBudget.reduce((sum, next) => sum + next);
-    const averageLatencyOverBudget = sumOfLatencyOverBudget / events.length;
+    const worstLatency = Math.max(...events.map(e => e.duration), 0);
+    const worstLatencyOverBudget = Math.max(...durationsOverBudget, 0);
+    const sumOfLatencyOverBudget = durationsOverBudget.reduce((sum, next) => sum + next, 0);
+    const averageLatencyOverBudget = events.length ? sumOfLatencyOverBudget / events.length : 0;
     // pseudo_second_worst_latency_over_budget;
     // high_percentile_latency_over_budget;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {createRunner} from './interaction-runner.js';
+import {createRunner} from '../runner/interaction-runner.js';
 
 /** @param {number} time in ms */
 function sleep(time) {
@@ -22,7 +22,7 @@ function sleep(time) {
 }
 
 async function captureReport() {
-  const runner = await createRunner({useHackReport: true});
+  const runner = await createRunner();
   await runner.startNavigation({url: 'https://www.khanacademy.org/'});
 
   try {

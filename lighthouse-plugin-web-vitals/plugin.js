@@ -16,8 +16,8 @@
 
 module.exports = {
   audits: [
-    {path: 'lighthouse-plugin-web-vitals/first-input-delay.js'},
-    {path: 'lighthouse-plugin-web-vitals/responsiveness.js'},
+    {path: 'lighthouse-plugin-web-vitals/audits/first-input-delay.js'},
+    {path: 'lighthouse-plugin-web-vitals/audits/responsiveness.js'},
   ],
 
   category: {
@@ -29,5 +29,12 @@ module.exports = {
       {id: 'first-input-delay', weight: 1, group: 'metrics'},
       {id: 'responsiveness', weight: 0},
     ],
+  },
+
+  groups: {
+    // When audits are run as a plugin, need a plugin-specific group definition.
+    'metrics': {
+      title: 'Metrics',
+    },
   },
 };

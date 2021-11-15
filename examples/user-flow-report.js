@@ -17,6 +17,7 @@
 import fs from 'fs';
 import open from 'open';
 import puppeteer from 'puppeteer';
+import {getChromePath} from 'chrome-launcher';
 // @ts-expect-error - TODO(bckenny): we need some types for the API
 import {startFlow} from 'lighthouse/lighthouse-core/fraggle-rock/api.js';
 
@@ -25,22 +26,16 @@ function sleep(time) {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-const testUrl = 'https://www.khanacademy.org/';
-const reportName = 'khan-sample.report.html';
-
 async function captureReport() {
   const browser = await puppeteer.launch({
     headless: false,
-    // TODO: generalize, but need Chrome 97+ for now.
-    executablePath: '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+    // We need Chrome 97+ for now, not whatever pptr ships with.
+    executablePath: getChromePath(),
   });
   const page = await browser.newPage();
 
-  // Get a session handle to be able to send protocol commands to the page.
-  // const session = await page.target().createCDPSession();
-
   const flow = await startFlow(page, {name: 'Interactions with the test page'});
-  // TODO(bckenny): use just a timespan, output report via `html` override
+
   await flow.startTimespan({stepName: 'Interactions', configContext: {
     settingsOverrides: {
       plugins: ['lighthouse-plugin-web-vitals'],
@@ -51,7 +46,7 @@ async function captureReport() {
     },
   }});
 
-  await page.goto(testUrl, {waitUntil: 'networkidle0'});
+  await page.goto('https://www.khanacademy.org/', {waitUntil: 'networkidle0'});
 
   try {
     // Dismiss "COVID" banner if visible.
@@ -75,12 +70,11 @@ async function captureReport() {
   await sleep(400);
 
   await flow.endTimespan();
-
   await browser.close();
 
   const report = flow.generateReport();
-  fs.writeFileSync(reportName, report);
-  open(reportName, {wait: false});
+  fs.writeFileSync('khan-sample.report.html', report);
+  open('khan-sample.report.html', {wait: false});
 }
 
 captureReport();
