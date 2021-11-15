@@ -2,6 +2,10 @@
 
 A Lighthouse plugin and runner to use user flows to simulate user interactions and measure CWV in the lab.
 
+<p align="center">
+<img width="500px" alt="Lighthouse user-flow report showing basic Web Vitals metrics" src="https://user-images.githubusercontent.com/316891/141843947-921a31af-c536-494c-aa6e-2530af2f19fa.png">
+</p>
+
 ## Table of Contents
 
 - [Getting Started](#getting-started)
@@ -169,7 +173,7 @@ To run: `node examples/interaction-runner-report.js`
 
 ## Plugin with interaction runner and hacked perf section
 
-With some knowledge of how the Lighthouse performance section is special-cased for rendering, we can also make a nice web vitals output that replaces the normal Performance section with our lab-based "field" metrics. It requires only passing in a flag:
+With some knowledge of how the Lighthouse performance section is special-cased for rendering, the interaction runner can also make a web vitals output that replaces the normal Performance section with our lab-based "field" metrics. It requires only passing in an extra flag:
 
 ```diff
 diff --git a/examples/interaction-runner-report.js b/examples/interaction-runner-report.js
