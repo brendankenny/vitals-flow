@@ -22,7 +22,7 @@
   "homepage": "https://github.com/brendankenny/vitals-flow#readme",
   "dependencies": {
     "chrome-launcher": "^0.15.0",
-    "lighthouse": "^8.6.0-dev.20211109",
+    "lighthouse": "^9.0.0",
     "open": "^8.4.0",
     "puppeteer": "^11.0.0"
   },
