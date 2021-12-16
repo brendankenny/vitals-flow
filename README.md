@@ -1,6 +1,10 @@
 # vitals-flow
 
-A Lighthouse plugin and runner to use user flows to simulate user interactions and measure CWV in the lab.
+A [Lighthouse](https://github.com/GoogleChrome/lighthouse) plugin and runner to experiment with Lighthouse [user flows](https://web.dev/lighthouse-user-flows/) to simulate user interactions and measure [Core Web Vitals](https://web.dev/vitals/) in the lab.
+
+This repo is for iterating on user flow ergonomics and the new [responsiveness metric](https://web.dev/responsiveness/)—so feel free to file issues or PRs—but in the long term, changes will need to land in Lighthouse core.
+
+This is not an officially supported Google product.
 
 <p align="center">
 <img width="500px" alt="Lighthouse user-flow report showing basic Web Vitals metrics" src="https://user-images.githubusercontent.com/316891/141843947-921a31af-c536-494c-aa6e-2530af2f19fa.png">
@@ -14,7 +18,7 @@ A Lighthouse plugin and runner to use user flows to simulate user interactions a
 - [Plugin with interaction runner](#plugin-with-interaction-runner)
 - [Plugin with interaction runner and hacked perf section](#plugin-with-interaction-runner-and-hacked-perf-section)
 
-## Getting started
+## Quick start
 
 - `git clone git@github.com:brendankenny/vitals-flow.git`
 - `cd vitals-flow`
@@ -23,7 +27,7 @@ A Lighthouse plugin and runner to use user flows to simulate user interactions a
 
 ## Basic usage
 
-The `lighthouse-plugin-web-vitals` plugin adds FID and responsiveness audits to cover all the Core Wev Vitals in a lab setting. When run, these are found in a "Lab Web Vitals" section in the Lighthouse report.
+The `lighthouse-plugin-web-vitals` plugin adds FID and responsiveness audits so that all the Core Wev Vitals are available in a lab setting. When run, these are found in a "Lab Web Vitals" section in the Lighthouse report.
 
 The plugin is compatible with any Lighthouse run, for instance on the command line:
 
@@ -31,11 +35,11 @@ The plugin is compatible with any Lighthouse run, for instance on the command li
 yarn lighthouse https://example.com --plugins lighthouse-plugin-web-vitals --view
 ```
 
-However, because there is no FID or responsiveness without user input and Lighthouse doesn't simulate input by default, these audits won't show any results.
+However, because there's no FID or responsiveness without user input and Lighthouse doesn't simulate input by default, these audits won't show any results.
 
 ## Plugin with Lighthouse user flows
 
-The plugin can be used in conjunction with [Lighthouse user flows](https://web.dev/lighthouse-user-flows/) to capture metrics while user input is being simulated. To run in a Lighthouse `timespan`, add the plugin to the step's config overrides:
+The plugin can be used in conjunction with Lighthouse [user flows](https://web.dev/lighthouse-user-flows/) to capture metrics while user input is being simulated. To run in a Lighthouse `timespan`, add the plugin to the step's config overrides:
 
 ```js
 await flow.startTimespan({stepName: 'Interactions', configContext: {
@@ -125,4 +129,3 @@ To run locally: `node examples/hack-runner-report.js`
 
 ## TODO
 - import [DevTools interaction recording](https://developer.chrome.com/docs/devtools/recorder/) (will require changes to their [Puppeteer export](https://developer.chrome.com/docs/devtools/recorder/#:~:text=of%20saved%20recordings.-,Export%20a%20recording,-.%20You%20can%20export))
-- many samples from selector/command line
